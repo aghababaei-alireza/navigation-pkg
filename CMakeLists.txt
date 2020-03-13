@@ -140,8 +140,8 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/navigation_pkg_node.cpp)
 
-add_executable(reachGoal src/reachGoal.cpp)
-target_link_libraries(reachGoal ${catkin_LIBRARIES})
+add_executable(PlanFollower src/PlanFollower.cpp)
+target_link_libraries(PlanFollower ${catkin_LIBRARIES})
 
 add_executable(simpleController src/simpleController.cpp)
 target_link_libraries(simpleController ${catkin_LIBRARIES})
