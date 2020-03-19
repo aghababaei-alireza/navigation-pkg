@@ -108,9 +108,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES navigation_pkg
-#  CATKIN_DEPENDS roscpp rospy std_msgs std_srvs message_runtime
+   INCLUDE_DIRS include
+   LIBRARIES ${PROJECT_NAME}
+   CATKIN_DEPENDS roscpp rospy std_msgs std_srvs message_runtime
 #  DEPENDS system_lib
 )
 
@@ -121,7 +121,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -129,6 +129,17 @@ include_directories(
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/navigation_pkg.cpp
 # )
+
+add_library(
+  ${PROJECT_NAME} src/Node.cpp
+)
+
+target_link_libraries(${PROJECT_NAME}
+    ${Boost_LIBRARIES}
+    ${catkin_LIBRARIES}
+)
+
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -148,6 +159,9 @@ target_link_libraries(simpleController ${catkin_LIBRARIES})
 
 add_executable(turtlesim_Controller src/TurtleSimController.cpp)
 target_link_libraries(turtlesim_Controller ${catkin_LIBRARIES})
+
+add_executable(AStar src/AStar.cpp)
+target_link_libraries(AStar ${PROJECT_NAME} ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

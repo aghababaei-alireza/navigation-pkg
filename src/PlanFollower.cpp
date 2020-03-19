@@ -5,6 +5,7 @@
 #include <navigation_pkg/Pose.h>
 #include <tf/tf.h>
 
+
 #define K_LIN 0.5
 #define K_ANG 0.5
 
@@ -62,12 +63,13 @@ void pose_Callback(const nav_msgs::Odometry::ConstPtr msg){
 bool service_Callback(navigation_pkg::Pose::Request &req, navigation_pkg::Pose::Response &resp){
     ros::Rate r(10);
     
-    for (int i = 0; i < req.position.size(); i++)
+    for (int i = 0; i < req.pose.size(); i++)
     {
+        
         //To get the goal position
-        goal.x = req.position[i].position.x;
-        goal.y = req.position[i].position.y;
-        goal.theta = getYawFromQuaternion(req.position[i].orientation);
+        goal.x = req.pose[i].position.x;
+        goal.y = req.pose[i].position.y;
+        goal.theta = getYawFromQuaternion(req.pose[i].orientation);
 
         while (true){
             //To get the current position of the robot
