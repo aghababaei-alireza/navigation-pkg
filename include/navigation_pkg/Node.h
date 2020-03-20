@@ -6,19 +6,21 @@
 
 namespace navigation_pkg{
 	class Node{
-	    public:
+	public:
 		bool walkable;
-		//geometry_msgs::Point worldPosition;
+		geometry_msgs::Point worldPosition;
 		int gridX;
 		int gridY;
 
 		int gCost;
 		int hCost;
 
+		navigation_pkg::Node parent;
+
 		int fCost();
 
-		Node(bool _walkable, int _gridX, int _gridY);
-	    private:
+		Node(bool _walkable,geometry_msgs::Point _worldPos, int _gridX, int _gridY);
+	private:
 	};
 }
 #endif
