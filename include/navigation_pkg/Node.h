@@ -15,7 +15,7 @@ namespace navigation_pkg{
 		int gCost;
 		int hCost;
 
-		navigation_pkg::Node parent;
+		navigation_pkg::Node* parent;
 
 		int fCost();
 
