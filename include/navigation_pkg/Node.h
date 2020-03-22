@@ -2,13 +2,13 @@
 #define NODE_H
 
 #include <ros/ros.h>
-#include <geometry_msgs/Point.h>
+#include <navigation_pkg/Vector3.h>
 
 namespace navigation_pkg{
 	class Node{
 	public:
 		bool walkable;
-		geometry_msgs::Point worldPosition;
+		navigation_pkg::Vector3 worldPosition;
 		int gridX;
 		int gridY;
 
@@ -19,7 +19,9 @@ namespace navigation_pkg{
 
 		int fCost();
 
-		Node(bool _walkable,geometry_msgs::Point _worldPos, int _gridX, int _gridY);
+		Node();
+		Node(bool _walkable,navigation_pkg::Vector3 _worldPos, int _gridX, int _gridY);
+
 	private:
 	};
 }
