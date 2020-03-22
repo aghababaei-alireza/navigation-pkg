@@ -1,8 +1,2 @@
-#include <ros/ros.h>
-#include <geometry_msgs/Point.h>
-#include <navigation_pkg/Node.h>
+#include <navigation_pkg/AStar.h>
 
-int main(int argc, char** argv){
-	ros::init(argc, argv, "node");
-	ros::NodeHandle nh;
-}

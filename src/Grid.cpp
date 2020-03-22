@@ -60,7 +60,21 @@ namespace navigation_pkg{
         return neighbours;
     }
 
-    Node NodeFromWorldPoint(navigation_pkg::Vector3 worldPosition){
+    Node Grid::NodeFromWorldPoint(navigation_pkg::Vector3 worldPosition){
+        /*
+        double percentX = (worldPosition.x + gridWorldSize.x/2) / gridWorldSize.x;
+        double percentY = (worldPosition.y + gridWorldSize.y/2) / gridWorldSize.y;
+
+        int x = (int)round((gridSizeX-1) * percentX);
+        int y = (int)round((gridSizeY-1) * percentY);
+        */
+
+        double percentX = (worldPosition.x - worldBottomLeft.x) / gridWorldSize.x;
+        double percentY = (worldPosition.y - worldBottomLeft.y) / gridWorldSize.y;
+
+        int x = (int)round((gridSizeX-1) * percentX);
+        int y = (int)round((gridSizeY-1) * percentY);
         
+        return grid[x][y];
     }
 }
