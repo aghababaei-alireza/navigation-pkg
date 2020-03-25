@@ -61,6 +61,7 @@ find_package(catkin REQUIRED COMPONENTS
  add_service_files(
    FILES
    Pose.srv
+   target.srv
  )
 
 ## Generate actions in the 'action' folder
@@ -134,6 +135,7 @@ add_library(
   ${PROJECT_NAME} 
   src/Node.cpp
   src/Grid.cpp
+  src/AStar.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -162,8 +164,8 @@ target_link_libraries(simpleController ${catkin_LIBRARIES})
 add_executable(turtlesim_Controller src/TurtleSimController.cpp)
 target_link_libraries(turtlesim_Controller ${catkin_LIBRARIES})
 
-add_executable(AStar src/AStar.cpp)
-target_link_libraries(AStar ${PROJECT_NAME} ${catkin_LIBRARIES})
+#add_executable(AStar src/AStar.cpp)
+#target_link_libraries(AStar ${PROJECT_NAME} ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

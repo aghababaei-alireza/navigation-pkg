@@ -22,6 +22,9 @@ namespace navigation_pkg{
 		Node();
 		Node(bool _walkable,navigation_pkg::Vector3 _worldPos, int _gridX, int _gridY);
 
+		bool operator == (Node node);
+		bool operator != (Node node);
+
 	private:
 	};
 }

@@ -21,4 +21,20 @@ namespace navigation_pkg{
 	int Node::fCost(){
 	    return gCost + hCost;
 	}
+
+	bool Node::operator ==(Node node){
+		if (walkable == node.walkable &&
+			worldPosition.x == node.worldPosition.x && worldPosition.y == node.worldPosition.y && worldPosition.z == node.worldPosition.z &&
+			gridX == node.gridX && gridY == node.gridY &&
+			gCost == node.gCost && hCost == node.hCost) return true;
+		else
+		{
+			return false;
+		}
+			
+	}
+
+	bool Node::operator!= (Node node){
+		return !(*this == node);
+	}
 }
