@@ -25,10 +25,10 @@ namespace navigation_pkg{
         std::vector<Node> path;
 
         //Constructor
-        Grid(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft);
+        Grid(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft, std::vector<std::vector<int> > data);
 
         //
-        void CreateGrid();
+        void CreateGrid(std::vector<std::vector<int> > data);
 
         std::vector<Node> GetNeighbours(Node node);
 

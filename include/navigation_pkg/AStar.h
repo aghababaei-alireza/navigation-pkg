@@ -3,7 +3,7 @@
 
 #include <ros/ros.h>
 #include <navigation_pkg/Grid.h>
-#include <navigation_pkg/target.h>
+#include <navigation_pkg/Target.h>
 
 namespace navigation_pkg{
     class AStar{
@@ -11,9 +11,8 @@ namespace navigation_pkg{
         Grid grid;
 
         ros::ServiceServer srv;
-        ros::NodeHandle nh;
 
-        AStar(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft);
+        AStar(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft, std::vector<std::vector<int> > data);
 
         void FindPath(navigation_pkg::Vector3 startPos, navigation_pkg::Vector3 targetPos);
 
@@ -25,7 +24,7 @@ namespace navigation_pkg{
 
         bool Contain(std::vector<Node> vect, Node node);
 
-        bool GlobalPlanCallBack(navigation_pkg::target::Request& req, navigation_pkg::target::Response& resp);
+        bool GlobalPlanCallBack(navigation_pkg::Target::Request& req, navigation_pkg::Target::Response& resp);
     };
 }
 

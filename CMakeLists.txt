@@ -61,7 +61,7 @@ find_package(catkin REQUIRED COMPONENTS
  add_service_files(
    FILES
    Pose.srv
-   target.srv
+   Target.srv
  )
 
 ## Generate actions in the 'action' folder

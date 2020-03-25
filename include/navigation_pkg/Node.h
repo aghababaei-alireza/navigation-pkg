@@ -9,8 +9,9 @@ namespace navigation_pkg{
 	public:
 		bool walkable;
 		navigation_pkg::Vector3 worldPosition;
-		int gridX;
-		int gridY;
+		
+		//index of the node in the grid array
+		int gridX, gridY;
 
 		int gCost;
 		int hCost;

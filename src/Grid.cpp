@@ -2,7 +2,7 @@
 #include <cmath>
 
 namespace navigation_pkg{
-    Grid::Grid(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft){
+    Grid::Grid(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft, std::vector<std::vector<int> > data){
         nodeRadius = _nodeRad;
         nodeDiameter = nodeRadius * 2.0;
         gridWorldSize = _gridWorldSize;
@@ -14,10 +14,10 @@ namespace navigation_pkg{
         worldBottomLeft.y = _worldBottomLeft.y;
         worldBottomLeft.z = _worldBottomLeft.z;
 
-        CreateGrid();
+        CreateGrid(data);
     }
 
-    void Grid::CreateGrid(){
+    void Grid::CreateGrid(std::vector<std::vector<int> > data){
 
         //Creating a 2D array of Nodes
         grid = new Node*[gridSizeX];
@@ -29,7 +29,7 @@ namespace navigation_pkg{
                 worldPoint.y = worldBottomLeft.y + ((j * nodeDiameter) + nodeRadius);
                 worldPoint.z = worldBottomLeft.z;
 
-                bool walkable = true; //ToDo
+                bool walkable = data[i][j]==0 ? true : false; //TODO : CHECK
                 grid[i][j].walkable = walkable;
                 grid[i][j].worldPosition = worldPoint;
                 grid[i][j].gridX = i;

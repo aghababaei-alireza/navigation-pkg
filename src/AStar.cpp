@@ -2,12 +2,14 @@
 
 namespace navigation_pkg{
 
-    AStar::AStar(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft){
-        srv = nh.advertiseService<navigation_pkg::target>("/global_planner_service", AStar::GlobalPlanCallBack);
+    AStar::AStar(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft, std::vector<std::vector<int> > data):
+    grid(_gridWorldSize, _nodeRad, _worldBottomLeft, data){
+        ros::NodeHandle nh;
+        srv = nh.advertiseService<navigation_pkg::Target>("/global_planner_service", AStar::GlobalPlanCallBack);
     }
 
-    bool GlobalPlanCallBack(navigation_pkg::target::Request& req, navigation_pkg::target::Response& resp){
-
+    bool GlobalPlanCallBack(navigation_pkg::Target::Request& req, navigation_pkg::Target::Response& resp){
+        return true;
     }
 
     void AStar::FindPath(navigation_pkg::Vector3 startPos, navigation_pkg::Vector3 targetPos){
