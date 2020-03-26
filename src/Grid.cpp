@@ -24,10 +24,14 @@ namespace navigation_pkg{
         for (int i = 0; i < gridSizeX; i++){
             grid[i] = new Node[gridSizeY];
             for (int j = 0; j < gridSizeY; j++){
-                navigation_pkg::Vector3 worldPoint;
-                worldPoint.x = worldBottomLeft.x + ((i * nodeDiameter) + nodeRadius);
-                worldPoint.y = worldBottomLeft.y + ((j * nodeDiameter) + nodeRadius);
-                worldPoint.z = worldBottomLeft.z;
+                navigation_pkg::Vector3 worldPoint(
+                    worldBottomLeft.x + ((i * nodeDiameter) + nodeRadius),
+                    worldBottomLeft.y + ((j * nodeDiameter) + nodeRadius),
+                    worldBottomLeft.z
+                );
+                // worldPoint.x = worldBottomLeft.x + ((i * nodeDiameter) + nodeRadius);
+                // worldPoint.y = worldBottomLeft.y + ((j * nodeDiameter) + nodeRadius);
+                // worldPoint.z = worldBottomLeft.z;
 
                 bool walkable = data[i][j]==0 ? true : false; //TODO : CHECK
                 grid[i][j].walkable = walkable;
@@ -77,4 +81,4 @@ namespace navigation_pkg{
         
         return grid[x][y];
     }
-}
+};

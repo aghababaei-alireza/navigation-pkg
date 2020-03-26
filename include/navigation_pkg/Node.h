@@ -28,5 +28,5 @@ namespace navigation_pkg{
 
 	private:
 	};
-}
+};
 #endif

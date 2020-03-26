@@ -34,6 +34,6 @@ namespace navigation_pkg{
 
         Node NodeFromWorldPoint(navigation_pkg::Vector3 worldPosition);
     };
-}
+};
 
 #endif

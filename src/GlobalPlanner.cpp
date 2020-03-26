@@ -53,9 +53,9 @@ int main(int argc, char** argv){
 
     ros::spinOnce();
 
-    navigation_pkg::Vector2 gridWorldSize;
-    gridWorldSize.x = width * resolution;
-    gridWorldSize.y = height * resolution;
+    navigation_pkg::Vector2 gridWorldSize(width * resolution, height * resolution);
+    //gridWorldSize.x = width * resolution;
+    //gridWorldSize.y = height * resolution;
     geometry_msgs::Point worldBottomLeft;
     worldBottomLeft.x = origin.x;
     worldBottomLeft.y = origin.y;

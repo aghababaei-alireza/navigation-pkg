@@ -37,4 +37,4 @@ namespace navigation_pkg{
 	bool Node::operator!= (Node node){
 		return !(*this == node);
 	}
-}
+};

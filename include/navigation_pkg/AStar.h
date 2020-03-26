@@ -24,8 +24,9 @@ namespace navigation_pkg{
 
         bool Contain(std::vector<Node> vect, Node node);
 
+        //Service Callback
         bool GlobalPlanCallBack(navigation_pkg::Target::Request& req, navigation_pkg::Target::Response& resp);
     };
-}
+};
 
 #endif

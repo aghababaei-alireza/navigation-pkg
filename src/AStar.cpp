@@ -5,10 +5,10 @@ namespace navigation_pkg{
     AStar::AStar(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft, std::vector<std::vector<int> > data):
     grid(_gridWorldSize, _nodeRad, _worldBottomLeft, data){
         ros::NodeHandle nh;
-        srv = nh.advertiseService<navigation_pkg::Target>("/global_planner_service", AStar::GlobalPlanCallBack);
+        srv = nh.advertiseService("/global_planner_service", &AStar::GlobalPlanCallBack, this);
     }
 
-    bool GlobalPlanCallBack(navigation_pkg::Target::Request& req, navigation_pkg::Target::Response& resp){
+    bool AStar::GlobalPlanCallBack(navigation_pkg::Target::Request& req, navigation_pkg::Target::Response& resp){
         return true;
     }
 
@@ -114,4 +114,4 @@ namespace navigation_pkg{
         }
         return false;   
     }
-}
+};
