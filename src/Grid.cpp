@@ -2,17 +2,12 @@
 #include <cmath>
 
 namespace navigation_pkg{
-    Grid::Grid(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft, std::vector<std::vector<int> > data){
-        nodeRadius = _nodeRad;
+    Grid::Grid(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft, std::vector<std::vector<int> > data)
+        :nodeRadius(_nodeRad), gridWorldSize(_gridWorldSize), worldBottomLeft(_worldBottomLeft.x, _worldBottomLeft.y, _worldBottomLeft.z) {
         nodeDiameter = nodeRadius * 2.0;
-        gridWorldSize = _gridWorldSize;
 
         gridSizeX = (int) round(gridWorldSize.x / nodeDiameter);
         gridSizeY = (int) round(gridWorldSize.y / nodeDiameter);
-
-        worldBottomLeft.x = _worldBottomLeft.x;
-        worldBottomLeft.y = _worldBottomLeft.y;
-        worldBottomLeft.z = _worldBottomLeft.z;
 
         CreateGrid(data);
     }
@@ -29,9 +24,6 @@ namespace navigation_pkg{
                     worldBottomLeft.y + ((j * nodeDiameter) + nodeRadius),
                     worldBottomLeft.z
                 );
-                // worldPoint.x = worldBottomLeft.x + ((i * nodeDiameter) + nodeRadius);
-                // worldPoint.y = worldBottomLeft.y + ((j * nodeDiameter) + nodeRadius);
-                // worldPoint.z = worldBottomLeft.z;
 
                 bool walkable = data[i][j]==0 ? true : false; //TODO : CHECK
                 grid[i][j].walkable = walkable;

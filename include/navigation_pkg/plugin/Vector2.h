@@ -1,5 +1,5 @@
 #define NAVIGATION_PKG_MESSAGE_VECTOR2_PLUGIN_CONSTRUCTOR \
-    Vector2_(double _x=0, double _y=0) \
+    Vector2_(double _x = 0, double _y = 0) \
     :x(_x), y(_y) {} 
 
 #define NAVIGATION_PKG_MESSAGE_VECTOR2_PLUGIN_CLASS_BODY \

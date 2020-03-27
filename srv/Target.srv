@@ -1,3 +1,4 @@
 navigation_pkg/Vector3 targetPos
 ---
+navigation_pkg/Vector3[] path
 bool success

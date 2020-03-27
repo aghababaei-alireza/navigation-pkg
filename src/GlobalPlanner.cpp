@@ -54,11 +54,10 @@ int main(int argc, char** argv){
     ros::spinOnce();
 
     navigation_pkg::Vector2 gridWorldSize(width * resolution, height * resolution);
-    //gridWorldSize.x = width * resolution;
-    //gridWorldSize.y = height * resolution;
     geometry_msgs::Point worldBottomLeft;
     worldBottomLeft.x = origin.x;
     worldBottomLeft.y = origin.y;
     worldBottomLeft.z = 0.0;
     navigation_pkg::AStar astar(gridWorldSize, resolution/2.0, worldBottomLeft, data);
+    
 }

@@ -5,10 +5,24 @@ namespace navigation_pkg{
     AStar::AStar(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft, std::vector<std::vector<int> > data):
     grid(_gridWorldSize, _nodeRad, _worldBottomLeft, data){
         ros::NodeHandle nh;
+        sub = nh.subscribe("/odom", 1, &AStar::OdomCallBack, this);
         srv = nh.advertiseService("/global_planner_service", &AStar::GlobalPlanCallBack, this);
+        ros::spinOnce();        
+    }
+
+    void AStar::OdomCallBack(nav_msgs::Odometry msg){
+        currentPos.x = msg.pose.pose.position.x;
+        currentPos.y = msg.pose.pose.position.y;
+        currentPos.z = msg.pose.pose.position.z;
     }
 
     bool AStar::GlobalPlanCallBack(navigation_pkg::Target::Request& req, navigation_pkg::Target::Response& resp){
+        ros::spinOnce();
+
+        FindPath(currentPos, req.targetPos);
+        resp.success = true;
+        resp.path = grid.path;
+        ros::NodeHandle nh;
         return true;
     }
 
@@ -73,12 +87,12 @@ namespace navigation_pkg{
     }
 
     void AStar::RetracePath(Node startNode, Node endNode){
-        std::vector<Node> path;
+        std::vector<Vector3> path;
         Node currentNode = endNode;
 
         while (currentNode != startNode)
         {
-            path.push_back(currentNode);
+            path.push_back(currentNode.worldPosition);
             currentNode = *(currentNode.parent);
         }
 

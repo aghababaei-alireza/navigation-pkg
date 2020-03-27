@@ -22,7 +22,7 @@ namespace navigation_pkg{
         int gridSizeX, gridSizeY;
 
         //Generated path will be stored here
-        std::vector<Node> path;
+        std::vector<Vector3> path;
 
         //Constructor
         Grid(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft, std::vector<std::vector<int> > data);
