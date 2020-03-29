@@ -165,8 +165,9 @@ target_link_libraries(simpleController ${catkin_LIBRARIES})
 add_executable(turtlesim_Controller src/TurtleSimController.cpp)
 target_link_libraries(turtlesim_Controller ${catkin_LIBRARIES})
 
-#add_executable(AStar src/AStar.cpp)
-#target_link_libraries(AStar ${PROJECT_NAME} ${catkin_LIBRARIES})
+add_executable(GlobalPlanner src/GlobalPlanner.cpp)
+target_link_libraries(GlobalPlanner ${PROJECT_NAME} ${catkin_LIBRARIES})
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

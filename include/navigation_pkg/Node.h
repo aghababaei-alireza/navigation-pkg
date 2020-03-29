@@ -13,12 +13,12 @@ namespace navigation_pkg{
 		//index of the node in the grid array
 		int gridX, gridY;
 
-		int gCost;
-		int hCost;
+		double gCost;
+		double hCost;
 
 		navigation_pkg::Node* parent;
 
-		int fCost();
+		double fCost();
 
 		Node();
 		Node(bool _walkable,navigation_pkg::Vector3 _worldPos, int _gridX, int _gridY);

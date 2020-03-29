@@ -18,7 +18,7 @@ namespace navigation_pkg{
 	    gridY = _gridY;
 	}
 
-	int Node::fCost(){
+	double Node::fCost(){
 	    return gCost + hCost;
 	}
 
