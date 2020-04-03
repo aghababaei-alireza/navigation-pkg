@@ -9,11 +9,11 @@ namespace navigation_pkg{
         ros::NodeHandle nh;
         sub = nh.subscribe("/odom", 1, &AStar::OdomCallBack, this);
         srv = nh.advertiseService("/global_planner_service", &AStar::GlobalPlanCallBack, this);
-        ros::spin();
+        // ros::spin();
     }
 
     void AStar::OdomCallBack(nav_msgs::Odometry msg){
-        //ROS_INFO("Entered Odom Callback");
+        // ROS_INFO("Entered Odom Callback");
         currentPos.x = msg.pose.pose.position.x;
         currentPos.y = msg.pose.pose.position.y;
         currentPos.z = msg.pose.pose.position.z;
@@ -23,14 +23,15 @@ namespace navigation_pkg{
         ROS_INFO("Entered Service Callback");
         ros::spinOnce();
 
-        FindPath(currentPos, req.targetPos);
-        resp.success = true;
+        bool success = FindPath(currentPos, req.targetPos);
+        resp.success = success;
         resp.path = grid.path;
         ros::NodeHandle nh;
-        return true;
+        return success;
     }
 
-    void AStar::FindPath(navigation_pkg::Vector3 startPos, navigation_pkg::Vector3 targetPos){
+    bool AStar::FindPath(navigation_pkg::Vector3 startPos, navigation_pkg::Vector3 targetPos){
+        bool success = false;
         ROS_INFO("Entered FindPath");
         ROS_INFO("StartPos(%.3f, %.3f, %.3f)\tTargetPos(%.3f, %.3f, %.3f)", startPos.x, startPos.y, startPos.z, targetPos.x, targetPos.y, targetPos.z);
         Node startNode = grid.NodeFromWorldPoint(startPos);
@@ -56,16 +57,30 @@ namespace navigation_pkg{
 
             ROS_INFO("node: gCost=%.3f\t hCost=%.3f\tgridX=%d\tgridY=%d\twalkable=%s\tworldPosition(%.3f, %.3f)", node.gCost, node.hCost, node.gridX, node.gridY, node.walkable==true?"True":"False", node.worldPosition.x, node.worldPosition.y);
 
-
-            openSet.erase(AStar::GetIndex(openSet,node));
+            /*******************************************/
+            std::vector<Node>::iterator it;
+            for (it = openSet.begin(); it <= openSet.end(); it++)
+            {
+                if (*it == node)
+                {
+                    ROS_INFO("EQUAL.");
+                    openSet.erase(it);
+                    break;
+                }
+                
+            }
+            
+            /*******************************************/
+            // std::vector<Node>::const_iterator it = openSet.erase(AStar::GetIndex(openSet,&node));
             ROS_INFO("OpenSet size(%d)", (int)openSet.size());
             closedSet.push_back(node);
             ROS_INFO("ClosedSet size(%d)", (int)closedSet.size());
 
             if (node == targetNode)
             {
+                success = true;
                 AStar::RetracePath(startNode, targetNode);
-                return;
+                return success;
             }
 
             std::vector<Node> neighbours = grid.GetNeighbours(node);
@@ -92,7 +107,8 @@ namespace navigation_pkg{
                 } 
             } 
         }
-        ROS_INFO("Finished FindPath");
+        ROS_INFO("Finished FindPath, %s", success ? "Successfull!" : "Failed!");
+        return success;
         
     }
 
@@ -117,17 +133,32 @@ namespace navigation_pkg{
         return sqrt(pow((nodeA.worldPosition.x - nodeB.worldPosition.x), 2) + pow((nodeA.worldPosition.y - nodeB.worldPosition.y), 2));
     }
 
-    std::vector<Node>::iterator AStar::GetIndex(std::vector<Node> vect, Node node){
+    std::vector<Node>::const_iterator AStar::GetIndex(std::vector<Node> vect, Node* node){
 
-        std::vector<Node>::iterator it = vect.begin();
-        for (int i = 0; i < vect.size(); i++)
-            if (node == vect[i]){
-                break;
+        ROS_INFO("Entered GetIndex");
+        ROS_INFO("Vect Size(%d)", (int)vect.size());
+
+        // std::vector<Node>::const_iterator it;
+        int i = 0;
+        // ROS_INFO("it(%.3f, %.3f)", it.base()->worldPosition.x, it.base()->worldPosition.y);
+        for (auto it = vect.cbegin(); it <= vect.cend(); it++)
+        {
+            ROS_INFO("node => %s", node->Print().c_str());
+            Node n = *it;
+            ROS_INFO("it   => %s", n.Print().c_str());
+            if (n == *node)
+            {
+                ROS_INFO("%4d\tFound (%.3f, %.3f))", ++i, n.worldPosition.x, n.worldPosition.y);
+                return it;
+                // break;
             }
-            else{
-                it++;
-            }
-        return it;  
+            else
+            {
+                ROS_INFO("%4d\tNot Found (%.3f, %.3f))", ++i, n.worldPosition.x, n.worldPosition.y);
+            } 
+        }
+        ROS_INFO("Index Not Found");
+        return vect.end()+1;  
     }
 
     bool AStar::Contain(std::vector<Node> vect, Node node){

@@ -3,7 +3,10 @@
 
 namespace navigation_pkg{
     Grid::Grid(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft, std::vector<std::vector<int> > data)
-        :nodeRadius(_nodeRad), gridWorldSize(_gridWorldSize), worldBottomLeft(_worldBottomLeft.x, _worldBottomLeft.y, _worldBottomLeft.z) {
+        :nodeRadius(_nodeRad), 
+        gridWorldSize(_gridWorldSize), 
+        worldBottomLeft(_worldBottomLeft.x, _worldBottomLeft.y, _worldBottomLeft.z) 
+    {
         ROS_INFO("Entered Grid Constructor");
         nodeDiameter = nodeRadius * 2.0;
 
@@ -15,10 +18,14 @@ namespace navigation_pkg{
 
     void Grid::CreateGrid(std::vector<std::vector<int> > data){
         //Creating a 2D array of Nodes
-        grid = new Node*[gridSizeX];
-        for (int i = 0; i < gridSizeX; i++){
-            grid[i] = new Node[gridSizeY];
-            for (int j = 0; j < gridSizeY; j++){
+        grid = new Node*[gridSizeY];
+        for (int j = 0; j < gridSizeY; j++)
+        {
+            grid[j] = new Node[gridSizeX];
+        }
+        
+        for (int j = 0; j < gridSizeY; j++){
+            for (int i = 0; i < gridSizeX; i++){
                 navigation_pkg::Vector3 worldPoint(
                     worldBottomLeft.x + ((i * nodeDiameter) + nodeRadius),
                     worldBottomLeft.y + ((j * nodeDiameter) + nodeRadius),

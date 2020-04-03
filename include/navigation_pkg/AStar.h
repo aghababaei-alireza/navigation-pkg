@@ -19,13 +19,13 @@ namespace navigation_pkg{
 
         AStar(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft, std::vector<std::vector<int> > data);
 
-        void FindPath(navigation_pkg::Vector3 startPos, navigation_pkg::Vector3 targetPos);
+        bool FindPath(navigation_pkg::Vector3 startPos, navigation_pkg::Vector3 targetPos);
 
         void RetracePath(Node startNode, Node endNode);
 
         int GetDistance(Node nodeA, Node nodeB);
 
-        std::vector<Node>::iterator GetIndex(std::vector<Node> vect, Node node);
+        std::vector<Node>::const_iterator GetIndex(std::vector<Node> vect, Node* node);
 
         bool Contain(std::vector<Node> vect, Node node);
 

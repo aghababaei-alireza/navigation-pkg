@@ -20,6 +20,7 @@ double getYawFromQuaternion(geometry_msgs::Quaternion q){
 }
 
 void MapCallback(nav_msgs::OccupancyGrid msg){
+    // ROS_INFO("Entered map callback.");
     resolution = msg.info.resolution;
 
     origin.x = msg.info.origin.position.x;
@@ -29,36 +30,46 @@ void MapCallback(nav_msgs::OccupancyGrid msg){
     height = msg.info.height;
     width = msg.info.width;
 
+    // ROS_INFO("MAP CALLBACK: Initiating parameters.");
+
     data.resize(height);
-    std::string s = "";
-    for (int i = 0; i < height; i++)
+    // ROS_INFO("MAP CALLBACK: Resize height.");
+    for (int j = 0; j < height; j++)
     {
-        data[i].resize(width);
-        for (int j = 0; j < width; j++)
-        {
-            data[i][j] = msg.data[(i * width) + j];
-            s.append(std::to_string(data[i][j]) + "\t");
-        }
-        s.append("\n");
+        data[j].resize(width);
+        // ROS_INFO("MAP CALLBACK: Resize width.");
     }
-    ROS_INFO("map data:\n%s", s.c_str());
     
+    for (int j = 0; j < height; j++)
+    {
+        for (int i = 0; i < width; i++)
+        {
+            data[i][j] = msg.data[i + (width * (height - j - 1))]; //based on map_saver node of map_server package
+
+        }
+    }    
     checkForSpin = true;
 }
 
 int main(int argc, char** argv){
     ros::init(argc, argv, "global_planner_node");
+    ROS_INFO("Initiating Node Completed.");
     ros::NodeHandle nh;
+    ROS_INFO("Creating NodeHandle Completed.");
 
     ros::Subscriber map_sub = nh.subscribe("/map", 1, MapCallback);
+    ROS_INFO("Creating map subscriber Completed.");
 
     checkForSpin = false;
+    ROS_INFO("Creating boolean variable Completed.");
 
     while (!checkForSpin)
     {
         ROS_INFO("Waiting For map data");
         ros::spinOnce();
+        ros::Duration(1).sleep();
     }
+    ROS_INFO("Subscribed to map topic.");
     
     navigation_pkg::Vector2 gridWorldSize(width * resolution, height * resolution);
     geometry_msgs::Point worldBottomLeft;
@@ -67,10 +78,11 @@ int main(int argc, char** argv){
     worldBottomLeft.z = 0.0;
     navigation_pkg::AStar astar(gridWorldSize, resolution/2.0, worldBottomLeft, data);
 
-    while (nh.ok())
-    {
-        ROS_INFO("main Function while");
-    }
-    
+    // while (nh.ok())
+    // {
+    //     // ROS_INFO("main Function while");
+    //     ros::Duration(0.5).sleep();
+    // }
+    ros::spin();
     return 0;
 }

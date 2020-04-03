@@ -26,9 +26,13 @@ namespace navigation_pkg{
 		if (walkable == node.walkable &&
 			worldPosition.x == node.worldPosition.x && worldPosition.y == node.worldPosition.y && worldPosition.z == node.worldPosition.z &&
 			gridX == node.gridX && gridY == node.gridY &&
-			gCost == node.gCost && hCost == node.hCost) return true;
+			gCost == node.gCost && hCost == node.hCost){
+				// ROS_INFO("Check for equality. EQUAL.");
+				return true;
+		}
 		else
 		{
+			// ROS_INFO("Check for equality. UNEQUAL.");
 			return false;
 		}
 			
@@ -36,5 +40,10 @@ namespace navigation_pkg{
 
 	bool Node::operator!= (Node node){
 		return !(*this == node);
+	}
+
+	std::string Node::Print(){
+		std::string s = "Node: Position(" + std::to_string(worldPosition.x) + ", " + std::to_string(worldPosition.y) + ")\tgridX=" + std::to_string(gridX) + "\tgridY=" + std::to_string(gridY);
+		return s;
 	}
 };
