@@ -44,7 +44,7 @@ void MapCallback(nav_msgs::OccupancyGrid msg){
     {
         for (int i = 0; i < width; i++)
         {
-            data[i][j] = msg.data[i + (width * (height - j - 1))]; //based on map_saver node of map_server package
+            data[j][i] = msg.data[i + (width * (height - j - 1))]; //based on map_saver node of map_server package
 
         }
     }    
@@ -61,7 +61,7 @@ int main(int argc, char** argv){
     ROS_INFO("Creating map subscriber Completed.");
 
     checkForSpin = false;
-    ROS_INFO("Creating boolean variable Completed.");
+    // ROS_INFO("Creating boolean variable Completed.");
 
     while (!checkForSpin)
     {

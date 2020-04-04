@@ -16,7 +16,10 @@ namespace navigation_pkg{
 		double gCost;
 		double hCost;
 
-		navigation_pkg::Node* parent;
+		//Node* parent;
+
+		//index of parent of node in the grid array
+		int parentX, parentY;
 
 		double fCost();
 

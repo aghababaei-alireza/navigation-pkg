@@ -83,4 +83,8 @@ namespace navigation_pkg{
         
         return grid[x][y];
     }
+
+    Node Grid::NodeFromIndex(int gridX, int gridY){
+        return grid[gridX][gridY];
+    }
 };

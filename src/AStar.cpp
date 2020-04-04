@@ -43,9 +43,9 @@ namespace navigation_pkg{
         openSet.push_back(startNode);
 
         while (openSet.size() > 0){
-            ROS_INFO("Entered While, openSet size(%d)", (int)openSet.size());
+            // ROS_INFO("Entered While, openSet size(%d)", (int)openSet.size());
             Node node = openSet[0];
-            ROS_INFO("OpenSet[0]: gCost=%.3f\t hCost=%.3f\tgridX=%d\tgridY=%d\twalkable=%s\tworldPosition(%.3f, %.3f)", openSet[0].gCost, openSet[0].hCost, openSet[0].gridX, openSet[0].gridY, openSet[0].walkable==true?"True":"False", openSet[0].worldPosition.x, openSet[0].worldPosition.y);
+            // ROS_INFO("OpenSet[0]: gCost=%.3f\t hCost=%.3f\tgridX=%d\tgridY=%d\twalkable=%s\tworldPosition(%.3f, %.3f)", openSet[0].gCost, openSet[0].hCost, openSet[0].gridX, openSet[0].gridY, openSet[0].walkable==true?"True":"False", openSet[0].worldPosition.x, openSet[0].worldPosition.y);
 
             for (int i = 0; i < openSet.size(); i++){
                 if (openSet[i].fCost() < node.fCost() || openSet[i].fCost() == node.fCost()){
@@ -55,7 +55,7 @@ namespace navigation_pkg{
                 }
             }
 
-            ROS_INFO("node: gCost=%.3f\t hCost=%.3f\tgridX=%d\tgridY=%d\twalkable=%s\tworldPosition(%.3f, %.3f)", node.gCost, node.hCost, node.gridX, node.gridY, node.walkable==true?"True":"False", node.worldPosition.x, node.worldPosition.y);
+            // ROS_INFO("node: gCost=%.3f\t hCost=%.3f\tgridX=%d\tgridY=%d\twalkable=%s\tworldPosition(%.3f, %.3f)", node.gCost, node.hCost, node.gridX, node.gridY, node.walkable==true?"True":"False", node.worldPosition.x, node.worldPosition.y);
 
             /*******************************************/
             std::vector<Node>::iterator it;
@@ -63,18 +63,16 @@ namespace navigation_pkg{
             {
                 if (*it == node)
                 {
-                    ROS_INFO("EQUAL.");
+                    // ROS_INFO("EQUAL.");
                     openSet.erase(it);
                     break;
                 }
-                
             }
-            
             /*******************************************/
             // std::vector<Node>::const_iterator it = openSet.erase(AStar::GetIndex(openSet,&node));
-            ROS_INFO("OpenSet size(%d)", (int)openSet.size());
+            // ROS_INFO("OpenSet size(%d)", (int)openSet.size());
             closedSet.push_back(node);
-            ROS_INFO("ClosedSet size(%d)", (int)closedSet.size());
+            // ROS_INFO("ClosedSet size(%d)", (int)closedSet.size());
 
             if (node == targetNode)
             {
@@ -84,11 +82,11 @@ namespace navigation_pkg{
             }
 
             std::vector<Node> neighbours = grid.GetNeighbours(node);
-            ROS_INFO("Neighbours Size(%d)", (int)neighbours.size());
+            // ROS_INFO("Neighbours Size(%d)", (int)neighbours.size());
 
             for (int i = 0; i < neighbours.size(); i++)
             {
-                ROS_INFO("Neighbour[%d]: Pos(%.3f, %.3f)\twalkable(%s)", i, neighbours[i].worldPosition.x, neighbours[i].worldPosition.y, neighbours[i].walkable?"True":"False");
+                // ROS_INFO("Neighbour[%d]: Pos(%.3f, %.3f)\twalkable(%s)", i, neighbours[i].worldPosition.x, neighbours[i].worldPosition.y, neighbours[i].walkable?"True":"False");
                 if (!neighbours[i].walkable || AStar::Contain(closedSet, neighbours[i]))
                 {
                     continue;
@@ -98,8 +96,10 @@ namespace navigation_pkg{
                 {
                     neighbours[i].gCost = newCostToNeighbour;
                     neighbours[i].hCost = AStar::GetDistance(neighbours[i], targetNode);
-                    neighbours[i].parent = &node;
-
+                    // neighbours[i].parent = &node;
+                    neighbours[i].parentX = node.gridX;
+                    neighbours[i].parentY = node.gridY;
+                    // ROS_INFO("Node Parent: %s", neighbours[i].parent->Print().c_str());
                     if (!AStar::Contain(openSet, neighbours[i]))
                     {
                         openSet.push_back(neighbours[i]);
@@ -116,14 +116,21 @@ namespace navigation_pkg{
         ROS_INFO("Entered Retraced Path");
         std::vector<Vector3> path;
         Node currentNode = endNode;
+        ROS_INFO("Parameters Created.");
 
         while (currentNode != startNode)
         {
+            ROS_INFO("Entered While.");
             path.push_back(currentNode.worldPosition);
-            currentNode = *(currentNode.parent);
+            ROS_INFO("Posintion Added to the path.");
+            // currentNode = *currentNode.parent;
+            currentNode = grid.NodeFromIndex(currentNode.parentX, currentNode.parentY);
+            ROS_INFO("Iteration Finished.");
         }
+        ROS_INFO("While Finished.");
 
         std::reverse(path.begin(), path.end());
+        ROS_INFO("Path vector reversed.");
         grid.path = path;
         ROS_INFO("Finished Retraced Path");
         

@@ -33,6 +33,8 @@ namespace navigation_pkg{
         std::vector<Node> GetNeighbours(Node node);
 
         Node NodeFromWorldPoint(navigation_pkg::Vector3 worldPosition);
+
+        Node NodeFromIndex(int gridX, int gridY);
     };
 };
 
