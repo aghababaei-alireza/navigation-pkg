@@ -36,11 +36,15 @@ namespace navigation_pkg{
         ROS_INFO("StartPos(%.3f, %.3f, %.3f)\tTargetPos(%.3f, %.3f, %.3f)", startPos.x, startPos.y, startPos.z, targetPos.x, targetPos.y, targetPos.z);
         Node startNode = grid.NodeFromWorldPoint(startPos);
         Node targetNode = grid.NodeFromWorldPoint(targetPos);
+        ROS_INFO("StartNode  => %s", startNode.Print().c_str());
+        ROS_INFO("TargetNode => %s", targetNode.Print().c_str());
 
         std::vector<Node> openSet;
         std::vector<Node> closedSet;
 
         openSet.push_back(startNode);
+
+        int i = 0;
 
         while (openSet.size() > 0){
             // ROS_INFO("Entered While, openSet size(%d)", (int)openSet.size());
@@ -76,36 +80,40 @@ namespace navigation_pkg{
 
             if (node == targetNode)
             {
+                ROS_INFO("i = %d", i);
                 success = true;
                 AStar::RetracePath(startNode, targetNode);
                 return success;
             }
 
-            std::vector<Node> neighbours = grid.GetNeighbours(node);
+            std::vector<Node*> neighbours = grid.GetNeighbours(node);
             // ROS_INFO("Neighbours Size(%d)", (int)neighbours.size());
 
             for (int i = 0; i < neighbours.size(); i++)
             {
-                // ROS_INFO("Neighbour[%d]: Pos(%.3f, %.3f)\twalkable(%s)", i, neighbours[i].worldPosition.x, neighbours[i].worldPosition.y, neighbours[i].walkable?"True":"False");
-                if (!neighbours[i].walkable || AStar::Contain(closedSet, neighbours[i]))
+                // ROS_INFO("Neighbour[%d]: Pos(%.3f, %.3f)\twalkable(%s)\tgridXY(%d, %d)", i, neighbours[i].worldPosition.x, neighbours[i].worldPosition.y, neighbours[i].walkable?"True":"False", neighbours[i].gridX, neighbours[i].gridY);
+                if (!neighbours[i]->walkable || AStar::Contain(closedSet, *neighbours[i]))
                 {
                     continue;
                 }
-                int newCostToNeighbour = node.gCost + AStar::GetDistance(node, neighbours[i]);
-                if (newCostToNeighbour < neighbours[i].gCost || !AStar::Contain(openSet, neighbours[i]))
+                double newCostToNeighbour = node.gCost + AStar::GetDistance(node, *neighbours[i]);
+                if (newCostToNeighbour < neighbours[i]->gCost || !AStar::Contain(openSet, *neighbours[i]))
                 {
-                    neighbours[i].gCost = newCostToNeighbour;
-                    neighbours[i].hCost = AStar::GetDistance(neighbours[i], targetNode);
+                    neighbours[i]->gCost = newCostToNeighbour;
+                    neighbours[i]->hCost = AStar::GetDistance(*neighbours[i], targetNode);
                     // neighbours[i].parent = &node;
-                    neighbours[i].parentX = node.gridX;
-                    neighbours[i].parentY = node.gridY;
+                    // ROS_INFO("node\t\t=> gridX=\t%d\tgridT=\t%d", node.gridX, node.gridY);
+                    neighbours[i]->parentX = node.gridX;
+                    neighbours[i]->parentY = node.gridY;
+                    // ROS_INFO("neighbor[%d]\t=> parentX=\t%d\tgridT=\t%d", i, neighbours[i].parentX, neighbours[i].parentY);
                     // ROS_INFO("Node Parent: %s", neighbours[i].parent->Print().c_str());
-                    if (!AStar::Contain(openSet, neighbours[i]))
+                    if (!AStar::Contain(openSet, *neighbours[i]))
                     {
-                        openSet.push_back(neighbours[i]);
+                        openSet.push_back(*neighbours[i]);
                     } 
                 } 
-            } 
+            }
+            i++;
         }
         ROS_INFO("Finished FindPath, %s", success ? "Successfull!" : "Failed!");
         return success;
@@ -120,12 +128,19 @@ namespace navigation_pkg{
 
         while (currentNode != startNode)
         {
-            ROS_INFO("Entered While.");
+            char c;
+            std::cin >> c;
+            // ROS_INFO("Entered While.");
             path.push_back(currentNode.worldPosition);
-            ROS_INFO("Posintion Added to the path.");
+            // ROS_INFO("Posintion Added to the path.");
             // currentNode = *currentNode.parent;
+            ROS_INFO("***************");
+            ROS_INFO("BEFORE: %s", currentNode.Print().c_str());
+            ROS_INFO("Current node => parentX=%d, parentY=%d", currentNode.parentX, currentNode.parentY);
             currentNode = grid.NodeFromIndex(currentNode.parentX, currentNode.parentY);
-            ROS_INFO("Iteration Finished.");
+            ROS_INFO("AFTER: %s", currentNode.Print().c_str());
+            ROS_INFO("***************");
+            // ROS_INFO("Iteration Finished.");
         }
         ROS_INFO("While Finished.");
 
@@ -136,7 +151,7 @@ namespace navigation_pkg{
         
     }
 
-    int AStar::GetDistance(Node nodeA, Node nodeB){
+    double AStar::GetDistance(Node nodeA, Node nodeB){
         return sqrt(pow((nodeA.worldPosition.x - nodeB.worldPosition.x), 2) + pow((nodeA.worldPosition.y - nodeB.worldPosition.y), 2));
     }
 

@@ -44,8 +44,8 @@ void MapCallback(nav_msgs::OccupancyGrid msg){
     {
         for (int i = 0; i < width; i++)
         {
-            data[j][i] = msg.data[i + (width * (height - j - 1))]; //based on map_saver node of map_server package
-
+            // data[j][i] = msg.data[i + (width * (height - j - 1))]; //based on map_saver node of map_server package
+            data[j][i] = msg.data[i + width * j];
         }
     }    
     checkForSpin = true;
@@ -53,21 +53,19 @@ void MapCallback(nav_msgs::OccupancyGrid msg){
 
 int main(int argc, char** argv){
     ros::init(argc, argv, "global_planner_node");
-    ROS_INFO("Initiating Node Completed.");
     ros::NodeHandle nh;
-    ROS_INFO("Creating NodeHandle Completed.");
+    ROS_INFO("Node %s Started.", ros::this_node::getName().c_str());
 
     ros::Subscriber map_sub = nh.subscribe("/map", 1, MapCallback);
     ROS_INFO("Creating map subscriber Completed.");
 
     checkForSpin = false;
-    // ROS_INFO("Creating boolean variable Completed.");
 
     while (!checkForSpin)
     {
         ROS_INFO("Waiting For map data");
         ros::spinOnce();
-        ros::Duration(1).sleep();
+        ros::Duration(0.5).sleep();
     }
     ROS_INFO("Subscribed to map topic.");
     

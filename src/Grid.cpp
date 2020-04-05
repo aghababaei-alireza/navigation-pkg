@@ -1,5 +1,7 @@
 #include <navigation_pkg/Grid.h>
 #include <cmath>
+#include <fstream>
+#include <iostream>
 
 namespace navigation_pkg{
     Grid::Grid(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft, std::vector<std::vector<int> > data)
@@ -23,6 +25,13 @@ namespace navigation_pkg{
         {
             grid[j] = new Node[gridSizeX];
         }
+
+        std::ofstream f;
+        f.open("map.txt"); 
+        if (f.fail())
+        {
+            ROS_ERROR("Error Opening File.");
+        }
         
         for (int j = 0; j < gridSizeY; j++){
             for (int i = 0; i < gridSizeX; i++){
@@ -32,24 +41,42 @@ namespace navigation_pkg{
                     worldBottomLeft.z
                 );
 
-                bool walkable = data[i][j]==0 ? true : false; //TODO : CHECK
-                grid[i][j].walkable = walkable;
-                grid[i][j].worldPosition = worldPoint;
-                grid[i][j].gridX = i;
-                grid[i][j].gridY = j;
+                bool walkable = data[j][i]==0 ? true : false; 
+                grid[j][i].walkable = walkable;
+                grid[j][i].worldPosition = worldPoint;
+                grid[j][i].gridX = i;
+                grid[j][i].gridY = j;
+
+                switch (data[j][i])
+                {
+                case 0:
+                    f.put('0');
+                    break;
+                case 100:
+                    f.put('1');
+                    break;
+                case -1:
+                    f.put('-');
+                    break;
+                
+                default:
+                    break;
+                }
+                
             }
+            f.put('\n');
         }
-        
+        f.close();
 
         ROS_INFO("map data size(%d, %d)", (int)data.size(), (int)data[0].size());
         
 
     }
 
-    std::vector<Node> Grid::GetNeighbours(Node node){
-        std::vector<Node> neighbours;
-        for (int i = -1; i <= 1; i++){
-            for (int j = -1; j <= 1; j++){
+    std::vector<Node*> Grid::GetNeighbours(Node node){
+        std::vector<Node*> neighbours;
+        for (int j = -1; j <= 1; j++){
+            for (int i = -1; i <= 1; i++){
                 if (i == 0 && j == 0) continue;
 
                 int checkX = node.gridX + i;
@@ -57,7 +84,7 @@ namespace navigation_pkg{
 
                 if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
                 {
-                    neighbours.push_back(grid[checkX][checkY]);
+                    neighbours.push_back(&grid[checkY][checkX]);
                 }
                 
             }
@@ -81,10 +108,11 @@ namespace navigation_pkg{
         int x = (int)round((gridSizeX-1) * percentX);
         int y = (int)round((gridSizeY-1) * percentY);
         
-        return grid[x][y];
+        return grid[y][x];
     }
 
     Node Grid::NodeFromIndex(int gridX, int gridY){
-        return grid[gridX][gridY];
+        ROS_INFO("NodeFromIndex: grid[%d][%d] => %s", gridX, gridY, grid[gridY][gridX].Print().c_str());
+        return grid[gridY][gridX];
     }
 };

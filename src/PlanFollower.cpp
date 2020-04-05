@@ -52,6 +52,16 @@ double Distance(position2D start, position2D end){
     return sqrt(pow((start.x - end.x),2) + pow((start.y - end.y),2));
 }
 
+void PublishVelocity(double Lx, double Ly, double Lz, double Ax, double Ay, double Az){
+    speed.linear.x = Lx;
+    speed.linear.y = Ly;
+    speed.linear.z = Lz;
+    speed.angular.x = Ax;
+    speed.angular.y = Ay;
+    speed.angular.z = Az;
+    vel_pub.publish(speed);
+}
+
 
 //Callback function for pose_sub subscriber. Saves the current position of the robot to the local variables.
 void pose_Callback(const nav_msgs::Odometry::ConstPtr msg){
@@ -81,13 +91,26 @@ bool service_Callback(navigation_pkg::Pose::Request &req, navigation_pkg::Pose::
 
             if (dist > 5.0e-2){ 
                 double angle = atan2(y_inc, x_inc);
+                /*
                 speed.linear.x = (dist * K_LIN <= 0.5) ? dist * K_LIN : 0.5;
                 speed.linear.y = 0.0;
                 speed.linear.z = 0.0;
                 speed.angular.x = 0.0;
                 speed.angular.y = 0.0;
                 speed.angular.z = ((angle - current.theta) * K_ANG <= 0.5) ? (angle - current.theta) * K_ANG : 0.5;
-                vel_pub.publish(speed);
+                vel_pub.publish(speed);*/
+                if (std::abs(angle - current.theta) > 0.1)
+                {
+                    double Az = ((angle - current.theta) * K_ANG <= 0.5) ? (angle - current.theta) * K_ANG : 0.5;
+                    PublishVelocity(0.0, 0.0, 0.0, 0.0, 0.0, Az);
+                }
+                else
+                {
+                    double Lx = (dist * K_LIN <= 0.5) ? dist * K_LIN : 0.5;
+                    PublishVelocity(Lx, 0.0, 0.0, 0.0, 0.0, 0.0);
+                }
+                
+                
             }
             else{
                 break;
@@ -98,13 +121,14 @@ bool service_Callback(navigation_pkg::Pose::Request &req, navigation_pkg::Pose::
 
         ROS_INFO("i = %d reached.", i);
     }
-    speed.linear.x = 0.0;
+    /*speed.linear.x = 0.0;
     speed.linear.y = 0.0;
     speed.linear.z = 0.0;
     speed.angular.x = 0.0;
     speed.angular.y = 0.0;
     speed.angular.z = 0.0;
-    vel_pub.publish(speed);
+    vel_pub.publish(speed);*/
+    PublishVelocity(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     resp.success = true;
     return true;
     

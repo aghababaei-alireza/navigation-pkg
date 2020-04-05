@@ -30,7 +30,7 @@ namespace navigation_pkg{
         //
         void CreateGrid(std::vector<std::vector<int> > data);
 
-        std::vector<Node> GetNeighbours(Node node);
+        std::vector<Node*> GetNeighbours(Node node);
 
         Node NodeFromWorldPoint(navigation_pkg::Vector3 worldPosition);
 

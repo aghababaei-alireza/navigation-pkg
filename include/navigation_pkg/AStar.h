@@ -23,7 +23,7 @@ namespace navigation_pkg{
 
         void RetracePath(Node startNode, Node endNode);
 
-        int GetDistance(Node nodeA, Node nodeB);
+        double GetDistance(Node nodeA, Node nodeB);
 
         std::vector<Node>::const_iterator GetIndex(std::vector<Node> vect, Node* node);
 
