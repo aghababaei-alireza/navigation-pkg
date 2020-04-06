@@ -6,35 +6,47 @@
 #include <navigation_pkg/Target.h>
 #include <nav_msgs/Odometry.h>
 
-namespace navigation_pkg{
+namespace navigation_pkg
+{
     class AStar{
     public:
-        navigation_pkg::Vector3 currentPos;
+        //Current position of the robot (x, y, z) (type double)
+        Vector3 currentPos;
 
+        //A pointer to the grid array
         Grid grid;
 
+        //Server to call a service for finding path
         ros::ServiceServer srv;
 
+        //Subscriber to odom topic to get the position of the robot
         ros::Subscriber sub;
 
-        AStar(navigation_pkg::Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft, std::vector<std::vector<int> > data);
+        //Client to call PlanFollower service
+        ros::ServiceClient client;
 
-        bool FindPath(navigation_pkg::Vector3 startPos, navigation_pkg::Vector3 targetPos);
+        //Constructor
+        AStar(Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft, std::vector<std::vector<int>> data);
 
-        void RetracePath(Node startNode, Node endNode);
+        //Main algorithm to find the path between start and end position
+        bool FindPath(Vector3 startPos, Vector3 targetPos);
 
-        double GetDistance(Node nodeA, Node nodeB);
+        //Generate the path based on costs calculated in FindPath function
+        void RetracePath(Node* startNode, Node* endNode);
 
-        std::vector<Node>::const_iterator GetIndex(std::vector<Node> vect, Node* node);
+        //Calculate the distance between two nodes
+        double GetDistance(Node* nodeA, Node* nodeB);
 
-        bool Contain(std::vector<Node> vect, Node node);
+        //Check if the node exists in the vector
+        bool Contain(std::vector<Node*>* vect, Node* node);
 
-        //Service Callback
-        bool GlobalPlanCallBack(navigation_pkg::Target::Request& req, navigation_pkg::Target::Response& resp);
+        //Service Callback -- GlobalPlanner
+        bool GlobalPlanCallback(navigation_pkg::Target::Request& req, navigation_pkg::Target::Response& resp);
 
-        //Topic Callback -- Odom
-        void OdomCallBack(nav_msgs::Odometry msg);
-    };
-};
+        //Topic Callback -- odom
+        void OdomCallback(nav_msgs::Odometry msg);
+    };  
+}; // namespace navigation_pkg
+
 
 #endif

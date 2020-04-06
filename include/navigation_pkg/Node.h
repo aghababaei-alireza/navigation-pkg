@@ -5,33 +5,51 @@
 #include <navigation_pkg/Vector3.h>
 
 namespace navigation_pkg{
-	class Node{
-	public:
-		bool walkable;
-		navigation_pkg::Vector3 worldPosition;
-		
-		//index of the node in the grid array
-		int gridX, gridY;
+    class Node{
+    public:
+        //True if this node is free false if occupied with an obstacle.
+        bool walkable;
 
-		double gCost;
-		double hCost;
+        //Position of the node (x, y, z) (type double)
+        Vector3 worldPosition;
 
-		//Node* parent;
+        //index of the node in the grid array (along x direction - 2nd index)
+        int gridX;
 
-		//index of parent of node in the grid array
-		int parentX, parentY;
+        //index of the node in the grid array (along y direction - 1st index)
+        int gridY;
 
-		double fCost();
+        //Cost of the path from startNode to this node
+        double gCost;
 
-		Node();
-		Node(bool _walkable,navigation_pkg::Vector3 _worldPos, int _gridX, int _gridY);
+        //Cost of the path from this node to TargetNode
+        double hCost;
 
-		std::string Print();
+        //Total cost of path through this node (= gCost + hCost)
+        double fCost();
 
-		bool operator == (Node node);
-		bool operator != (Node node);
+        //index of the parent of this node in grid array (along x direction - 2nd index)
+        int parentX;
 
-	private:
-	};
+        //index of the parent of this node in grid array (along y direction - 1st index)
+        int parentY;
+
+        //Default Constructor
+        Node();
+
+        //Constructor
+        Node(bool _walkable, Vector3 _worldPos, int _gridX, int gridY);
+
+        //Print the information of this node
+        std::string Print();
+
+        bool operator == (Node node);
+        bool operator == (Node* node);
+        bool operator != (Node node);
+        bool operator != (Node* node);
+
+    private:
+    };
 };
+
 #endif

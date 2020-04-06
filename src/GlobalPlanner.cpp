@@ -1,15 +1,14 @@
 #include <ros/ros.h>
 #include <navigation_pkg/AStar.h>
 #include <nav_msgs/OccupancyGrid.h>
+#include <geometry_msgs/Quaternion.h>
 #include <tf/tf.h>
 
 double resolution;
 navigation_pkg::Vector3 origin;
 int height, width;
-std::vector<std::vector<int> > data;
-
+std::vector<std::vector<int>> data;
 bool checkForSpin = false;
-
 
 double getYawFromQuaternion(geometry_msgs::Quaternion q){
     tf::Quaternion Q(q.x, q.y, q.z, q.w);
@@ -20,34 +19,31 @@ double getYawFromQuaternion(geometry_msgs::Quaternion q){
 }
 
 void MapCallback(nav_msgs::OccupancyGrid msg){
-    // ROS_INFO("Entered map callback.");
     resolution = msg.info.resolution;
 
-    origin.x = msg.info.origin.position.x;
-    origin.y = msg.info.origin.position.y;
-    origin.z = getYawFromQuaternion(msg.info.origin.orientation);
+    origin.Set(
+        msg.info.origin.position.x,
+        msg.info.origin.position.y,
+        getYawFromQuaternion(msg.info.origin.orientation)
+    );
 
     height = msg.info.height;
     width = msg.info.width;
 
-    // ROS_INFO("MAP CALLBACK: Initiating parameters.");
-
     data.resize(height);
-    // ROS_INFO("MAP CALLBACK: Resize height.");
     for (int j = 0; j < height; j++)
     {
         data[j].resize(width);
-        // ROS_INFO("MAP CALLBACK: Resize width.");
     }
-    
+
     for (int j = 0; j < height; j++)
     {
         for (int i = 0; i < width; i++)
         {
-            // data[j][i] = msg.data[i + (width * (height - j - 1))]; //based on map_saver node of map_server package
             data[j][i] = msg.data[i + width * j];
         }
-    }    
+    }
+    
     checkForSpin = true;
 }
 
@@ -74,13 +70,8 @@ int main(int argc, char** argv){
     worldBottomLeft.x = origin.x;
     worldBottomLeft.y = origin.y;
     worldBottomLeft.z = 0.0;
-    navigation_pkg::AStar astar(gridWorldSize, resolution/2.0, worldBottomLeft, data);
 
-    // while (nh.ok())
-    // {
-    //     // ROS_INFO("main Function while");
-    //     ros::Duration(0.5).sleep();
-    // }
+    navigation_pkg::AStar astar(gridWorldSize, resolution/2.0, worldBottomLeft, data);
     ros::spin();
     return 0;
 }

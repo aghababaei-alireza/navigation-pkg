@@ -13,4 +13,14 @@
     { \
         x = 0.0; \
         y = 0.0; \
+    } \
+    \
+    bool operator == (navigation_pkg::Vector2_<std::allocator<void>> vect) \
+    { \
+        return ((x == vect.x) && (y == vect.y)); \
+    } \
+    \
+    bool operator != (navigation_pkg::Vector2_<std::allocator<void>> vect) \
+    { \
+        return ~(*this == vect); \
     }

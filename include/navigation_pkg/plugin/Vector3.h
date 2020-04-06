@@ -15,4 +15,14 @@
         x = 0.0; \
         y = 0.0; \
         z = 0.0; \
+    } \
+    \
+    bool operator == (navigation_pkg::Vector3_<std::allocator<void>> vect) \
+    { \
+        return ((x == vect.x) && (y == vect.y) && (z == vect.z)); \
+    } \
+    \
+    bool operator != (navigation_pkg::Vector3_<std::allocator<void>> vect) \
+    { \
+        return !(*this == vect); \
     }
