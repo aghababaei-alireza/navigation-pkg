@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   nav_msgs
   message_generation
+  sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -77,6 +78,7 @@ find_package(catkin REQUIRED COMPONENTS
    std_msgs
    geometry_msgs
    nav_msgs
+   sensor_msgs
  )
 
 ################################################
@@ -136,6 +138,7 @@ add_library(
   src/Node.cpp
   src/Grid.cpp
   src/AStar.cpp
+  src/DWA.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -167,6 +170,9 @@ target_link_libraries(turtlesim_Controller ${catkin_LIBRARIES})
 
 add_executable(GlobalPlanner src/GlobalPlanner.cpp)
 target_link_libraries(GlobalPlanner ${PROJECT_NAME} ${catkin_LIBRARIES})
+
+add_executable(DWALocalPlanner src/DWA_LocalPlanner.cpp)
+target_link_libraries(DWALocalPlanner ${PROJECT_NAME} ${catkin_LIBRARIES})
 
 
 ## Rename C++ executable without prefix

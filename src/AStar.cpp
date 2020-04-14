@@ -44,12 +44,12 @@ namespace navigation_pkg
         openSet.push_back(startNode);
         int i = 0;
 
-        ROS_INFO("OpenSet Size(%d)", (int)openSet.size());
+        // ROS_INFO("OpenSet Size(%d)", (int)openSet.size());
         while (openSet.size() > 0)
         {
-            ROS_INFO("Entered While.");
+            // ROS_INFO("Entered While.");
             Node* node = openSet[0];
-            ROS_INFO("openSet[0]\t=> %s", openSet[0]->Print().c_str());
+            // ROS_INFO("openSet[0]\t=> %s", openSet[0]->Print().c_str());
 
             /**************************************/
             /* Finding the node with minimum cost */
@@ -64,7 +64,7 @@ namespace navigation_pkg
                     }
                 }
             }
-            ROS_INFO("node\t\t=> %s", node->Print().c_str());
+            // ROS_INFO("node\t\t=> %s", node->Print().c_str());
             
             /*****************************************************************************/
             /* Removing the node (with minimum cost) from openSet and adding to closedSet*/
@@ -77,9 +77,9 @@ namespace navigation_pkg
                     break;
                 }
             }
-            ROS_INFO("OpenSet Size(%d)", (int)openSet.size());
+            // ROS_INFO("OpenSet Size(%d)", (int)openSet.size());
             closedSet.push_back(node);
-            ROS_INFO("ClosedSet Size(%d)", (int)closedSet.size());
+            // ROS_INFO("ClosedSet Size(%d)", (int)closedSet.size());
             
             /***********************************/
             /* Checking if we reach the target */
@@ -92,18 +92,18 @@ namespace navigation_pkg
                 return success;
             }
 
-            ROS_INFO("Checking neighbours.");
+            // ROS_INFO("Checking neighbours.");
             /************************************************************/
             /* Get the neighbours of the node and calculate their costs */
             /************************************************************/
             std::vector<Node*> neighbours = grid.GetNeighbours(node);
-            ROS_INFO("neighbours size(%d)", (int)neighbours.size());
+            // ROS_INFO("neighbours size(%d)", (int)neighbours.size());
             for (std::vector<Node*>::iterator it = neighbours.begin(); it < neighbours.end(); it++)
             {
-                ROS_INFO("Checking each neighbour.");
+                // ROS_INFO("Checking each neighbour.");
                 if (!(*it)->walkable || AStar::Contain(&closedSet, *it)) continue;
                 
-                ROS_INFO("Checking each prepared neighbour.");
+                // ROS_INFO("Checking each prepared neighbour.");
                 double newCostToNeighbour = node->gCost + AStar::GetDistance(node, *it);
                 if (newCostToNeighbour < (*it)->gCost || !AStar::Contain(&openSet, *it))
                 {
@@ -115,7 +115,7 @@ namespace navigation_pkg
                     {
                         openSet.push_back(*it);
                     }
-                    ROS_INFO("Neighbour: %s", (*it)->Print().c_str());
+                    // ROS_INFO("Neighbour: %s", (*it)->Print().c_str());
                 }
                 
             }
@@ -138,7 +138,10 @@ namespace navigation_pkg
 
         std::reverse(path.begin(), path.end());
         grid.path = path;
-
+        ROS_INFO("Path generated. Sending to Plan Follower...");
+        
+        //Send the path to PlanFollower
+        /*
         std::vector<geometry_msgs::Pose> pose;
         pose.resize(path.size());
         navigation_pkg::Pose msg;
@@ -149,7 +152,34 @@ namespace navigation_pkg
             pose[i].position.z = path[i].z;
         }
         msg.request.pose = pose;
+        ROS_INFO("Path sent to the plan follower.");
+        client.call(msg);*/
+
+        std::vector<geometry_msgs::Pose> pose;
+        geometry_msgs::Pose old2, old1, curr;
+        old2.position.x = path[0].x; old2.position.y = path[0].y; old2.position.z = path[0].z;
+        pose.push_back(old2);
+        old1.position.x = path[1].x; old1.position.y = path[1].y; old1.position.z = path[1].z;
+        pose.push_back(old1);
+
+        for (std::vector<navigation_pkg::Vector3>::iterator it = path.begin()+2; it != path.end(); it++)
+        {
+            curr.position.x = (*it).x; curr.position.y = (*it).y; curr.position.z = (*it).z;
+            if (atan2(old1.position.y - old2.position.y, old1.position.x - old2.position.x) == atan2(curr.position.y - old1.position.y, curr.position.x - old1.position.x))
+            {
+                pose.pop_back();
+            }
+            pose.push_back(curr);
+            old2 = old1;
+            old1 = curr;
+        }
+        navigation_pkg::Pose msg;
+        msg.request.pose = pose;
         client.call(msg);
+        
+
+        grid.SavePathToFile();
+       
     }
 
     double AStar::GetDistance(Node* nodeA, Node* nodeB){

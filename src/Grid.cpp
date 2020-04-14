@@ -1,4 +1,6 @@
 #include <navigation_pkg/Grid.h>
+#include <fstream>
+#include <iostream>
 
 namespace navigation_pkg
 {
@@ -83,6 +85,52 @@ namespace navigation_pkg
 
     Node* Grid::NodeFromIndex(int _gridX, int _gridY){
         return &grid[_gridY][_gridX];
+    }
+
+    void Grid::SavePathToFile(){
+        std::ofstream f;
+        f.open("map.txt");
+        if (f.fail())
+        {
+            ROS_ERROR("Error opening file.");
+            return;
+        }
+        
+        for (int j = gridSizeY-1; j >= 0; j--)
+        {
+            for (int i = 0; i < gridSizeX; i++)
+            {
+                if (!grid[j][i].walkable)
+                {
+                    f.put('0');
+                }
+                else
+                {
+                    if (Grid::IsInPath(grid[j][i].worldPosition))
+                    {
+                        f.put('*');
+                    }
+                    else
+                    {
+                        f.put('-');
+                    }
+                }
+                
+            }
+            f.put('\n');
+        }
+        f.close();
+    }
+
+    bool Grid::IsInPath(Vector3 v){
+        for (std::vector<Vector3>::iterator it = path.begin(); it != path.end(); it++)
+        {
+            if ((*it) == v)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 }; // namespace navigation_pkg

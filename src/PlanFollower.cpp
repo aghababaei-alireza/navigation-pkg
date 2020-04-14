@@ -72,6 +72,37 @@ void pose_Callback(const nav_msgs::Odometry::ConstPtr msg){
 
 bool service_Callback(navigation_pkg::Pose::Request &req, navigation_pkg::Pose::Response &resp){
     ros::Rate r(10);
+    ROS_INFO("Path recieved. Rotating to match the orientation...");
+
+    /****************************
+    goal.x = req.pose[0].position.x;
+    goal.y = req.pose[0].position.y;
+    goal.theta = getYawFromQuaternion(req.pose[0].orientation);
+
+    while (true)
+    {
+        ros::spinOnce();
+
+        double x_inc = goal.x - current.x;
+        double y_inc = goal.y - current.y;
+        double dist = Distance(current, goal);
+
+        double angle = atan2(y_inc, x_inc);
+        if (std::abs(angle - current.theta) > 0.1)
+        {
+            double Az = ((angle - current.theta) * K_ANG <= 0.5) ? (angle - current.theta) * K_ANG : 0.5;
+            PublishVelocity(0.0, 0.0, 0.0, 0.0, 0.0, Az);
+        }
+        else
+        {
+            break;
+        }
+            
+    }
+
+    ROS_INFO("Moving to the target...");
+    
+    /****************************/
     
     for (int i = 0; i < req.pose.size(); i++)
     {
@@ -91,14 +122,10 @@ bool service_Callback(navigation_pkg::Pose::Request &req, navigation_pkg::Pose::
 
             if (dist > 5.0e-2){ 
                 double angle = atan2(y_inc, x_inc);
-                /*
-                speed.linear.x = (dist * K_LIN <= 0.5) ? dist * K_LIN : 0.5;
-                speed.linear.y = 0.0;
-                speed.linear.z = 0.0;
-                speed.angular.x = 0.0;
-                speed.angular.y = 0.0;
-                speed.angular.z = ((angle - current.theta) * K_ANG <= 0.5) ? (angle - current.theta) * K_ANG : 0.5;
-                vel_pub.publish(speed);*/
+                
+                // double Ax = (dist * K_LIN <= 0.5) ? dist * K_LIN : 0.5;
+                // double Az = ((angle - current.theta) * K_ANG <= 0.5) ? (angle - current.theta) * K_ANG : 0.5;
+                // PublishVelocity(Ax, 0.0, 0.0, 0.0, 0.0, Az);
                 if (std::abs(angle - current.theta) > 0.1)
                 {
                     double Az = ((angle - current.theta) * K_ANG <= 0.5) ? (angle - current.theta) * K_ANG : 0.5;

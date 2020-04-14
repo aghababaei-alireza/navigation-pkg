@@ -50,6 +50,9 @@ namespace navigation_pkg{
         //Find the node by its indices
         Node* NodeFromIndex(int gridX, int gridY);
 
+        void SavePathToFile();
+        bool IsInPath(Vector3 v);
+
     };
 
 }; // namespace navigation_pk
