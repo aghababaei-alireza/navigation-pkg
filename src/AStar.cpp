@@ -9,7 +9,7 @@ namespace navigation_pkg
         ros::NodeHandle nh;
         sub = nh.subscribe("/odom", 1, &AStar::OdomCallback, this);
         srv = nh.advertiseService("/global_planner_service", &AStar::GlobalPlanCallback, this);
-        client = nh.serviceClient<navigation_pkg::Pose>("/plan_follower");
+        client = nh.serviceClient<navigation_pkg::Pose>("/DWA_LocalPlanner_Service");
     }
 
     void AStar::OdomCallback(nav_msgs::Odometry msg){

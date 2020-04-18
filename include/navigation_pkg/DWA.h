@@ -9,6 +9,7 @@
 #include <tf/tf.h>
 #include <cmath>
 #include <geometry_msgs/Pose2D.h>
+#include <std_srvs/Empty.h>
 
 namespace navigation_pkg
 {
@@ -18,6 +19,8 @@ namespace navigation_pkg
         ros::Subscriber pose_sub;               //subscriber to get the position of the robot
         ros::Subscriber laser_sub;              //Subscriber to get the laser scanner data
         ros::Publisher vel_pub;                 //Velocity publisher
+        ros::ServiceServer shutDown_srv;        //
+        ros::ServiceServer debug_srv;           //
         ros::NodeHandle nh;
 
         double dt;                              //Time interval (sec)     
@@ -58,7 +61,7 @@ namespace navigation_pkg
         double line_increment;                  //Linear distance between two points along the robot width
         double sl;                              //Look_ahead distance of used sensor
 
-        bool checkPose, checkLaser;
+        bool checkPose, checkLaser, isShutDown;
 
 
 
@@ -88,6 +91,10 @@ namespace navigation_pkg
         geometry_msgs::Pose2D SetPose2D(double x, double y, double theta);
 
         double getLaserDist(double angle);
+
+        bool ShutdownCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
+
+        bool Debug_Callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
     };
 }; // namespace navigation_pkg
 
