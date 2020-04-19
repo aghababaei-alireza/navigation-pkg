@@ -64,6 +64,7 @@ find_package(catkin REQUIRED COMPONENTS
    FILES
    Pose.srv
    Target.srv
+   ActivateGoal.srv
  )
 
 ## Generate actions in the 'action' folder
@@ -141,6 +142,7 @@ add_library(
   src/Grid.cpp
   src/AStar.cpp
   src/DWA.cpp
+  src/Bug0.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -176,6 +178,14 @@ target_link_libraries(GlobalPlanner ${PROJECT_NAME} ${catkin_LIBRARIES})
 add_executable(DWALocalPlanner src/DWA_LocalPlanner.cpp)
 target_link_libraries(DWALocalPlanner ${PROJECT_NAME} ${catkin_LIBRARIES})
 
+add_executable(Bug0_LocalPlanner src/Bug0_LocalPlanner.cpp)
+target_link_libraries(Bug0_LocalPlanner ${PROJECT_NAME} ${catkin_LIBRARIES})
+
+add_executable(Go_To_Point src/Go_To_Point.cpp)
+target_link_libraries(Go_To_Point ${PROJECT_NAME} ${catkin_LIBRARIES})
+
+add_executable(Follow_Wall src/Follow_Wall.cpp)
+target_link_libraries(Follow_Wall ${PROJECT_NAME} ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
