@@ -51,6 +51,8 @@ namespace navigation_pkg
             FollowWall
         };
 
+        std::string state_description[2] = {"GoToPoint", "FollowWall"};
+
         State _state;
 
         double regions[5];                                      //An array to store the minimum distance to obstacles in 5 regions in front of robot

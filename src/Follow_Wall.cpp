@@ -39,10 +39,29 @@ enum State{
     FOLLOW_WALL
 };
 
+enum Side{
+    LEFT, 
+    RIGHT
+};
+
+std::string state_description[3] = {"Find_Wall", "Turn", "Follow_Wall"};
+std::string side_description[2] = {"Left", "Right"};
+
 State _state;
+Side _side;
 
 void ChangeState(State state){
     _state = state;
+    ROS_INFO("State changed to [%d: %s] side: %s.", _state, state_description[_state].c_str(), side_description[_side].c_str());
+}
+
+double Normalize_Angle(double angle){
+    double a;
+    if (std::abs(angle) > M_PI)
+    {
+        a = angle - (2 * M_PI * angle) / std::abs(angle);
+    }
+    return a;
 }
 
 void Pose_Callback(nav_msgs::Odometry msg){
@@ -61,18 +80,10 @@ bool Follow_Wall_Switch_Callback(navigation_pkg::ActivateGoal::Request& req, nav
 }
 
 void FindNewState(){
-    double d = 0.75;
+    double d = 1.0;
     if (regions[F] > d && regions[FL] > d && regions[FR] > d) //case 1: Nothing
     {
-        // ChangeState(FIND_WALL);
-        if (active)
-        {
-            active = false;
-            navigation_pkg::ActivateGoal msg;
-            msg.request.activate = true;
-            msg.request.pose = goalPos;
-            go_to_point_client.call(msg);
-        }
+        ChangeState(TURN);
     }
     else if (regions[F] < d && regions[FL] > d && regions[FR] > d) //case 2: Front
     {
@@ -80,18 +91,26 @@ void FindNewState(){
     }
     else if (regions[F] > d && regions[FL] > d && regions[FR] < d) //case 3: FrontRight
     {
-        ChangeState(FOLLOW_WALL);
+        // ChangeState(FOLLOW_WALL);
+        if (_side == LEFT)
+        {
+            ChangeState(TURN);
+        }
+        else if (_side == RIGHT)
+        {
+            ChangeState(FIND_WALL);
+        }
     }
     else if (regions[F] > d && regions[FL] < d && regions[FR] > d) //case 4: FrontLeft
     {
         // ChangeState(FIND_WALL);
-        if (active)
+        if (_side == LEFT)
         {
-            active = false;
-            navigation_pkg::ActivateGoal msg;
-            msg.request.activate = true;
-            msg.request.pose = goalPos;
-            go_to_point_client.call(msg);
+            ChangeState(FIND_WALL);
+        }
+        else if (_side == RIGHT)
+        {
+            ChangeState(TURN);
         }
     }
     else if (regions[F] < d && regions[FL] > d && regions[FR] < d) //case 5: Front & FrontRight
@@ -108,20 +127,20 @@ void FindNewState(){
     }
     else if (regions[F] > d && regions[FL] < d && regions[FR] < d) //case 8: FrontLeft & FrontRight
     {
-        // ChangeState(FIND_WALL);
-        if (active)
-        {
-            active = false;
-            navigation_pkg::ActivateGoal msg;
-            msg.request.activate = true;
-            msg.request.pose = goalPos;
-            go_to_point_client.call(msg);
-        }
+        ChangeState(FIND_WALL);
     }
     else
     {
         ROS_ERROR("Wrong State: This Shouldn't happen. Something's wrong.");
     }
+}
+
+double getYawFromQuaternion(geometry_msgs::Quaternion q){
+    tf::Quaternion Q(q.x, q.y, q.z, q.w);
+    tf::Matrix3x3 m(Q);
+    double r, p, y;
+    m.getRPY(r, p, y);
+    return y;
 }
 
 void Laser_Callback(sensor_msgs::LaserScan msg){
@@ -141,6 +160,18 @@ void Laser_Callback(sensor_msgs::LaserScan msg){
     regions[L] = *std::min_element(it+54, it+90);
 
     checkLaser = true;
+
+    double err_yaw = atan2(goalPos.position.y-currentPos.position.y, goalPos.position.x-currentPos.position.x) - getYawFromQuaternion(currentPos.orientation);
+    err_yaw = Normalize_Angle(err_yaw);
+    if (err_yaw > 0)
+    {
+        _side = LEFT;
+    }
+    else
+    {
+        _side = RIGHT;
+    }
+
     FindNewState();
 }
 
@@ -150,10 +181,17 @@ geometry_msgs::Twist Find_Wall(){
     return speed;
 }
 
-geometry_msgs::Twist Turn_Left(){
+geometry_msgs::Twist Turn(){
     geometry_msgs::Twist speed;
-    speed.linear.x = 0.1;
-    speed.angular.z = 0.9;
+    speed.linear.x = 0.0;
+    if (_side == LEFT)
+    {
+        speed.angular.z = 1.2;
+    }
+    else if (_side == RIGHT)
+    {
+        speed.angular.z = -1.2;
+    }
     return speed;
 }
 
@@ -162,6 +200,8 @@ geometry_msgs::Twist Follow_Wall(){
     speed.linear.x = max_v / 2.0;
     return speed;
 }
+
+
 
 
 int main(int argc, char** argv){
@@ -192,7 +232,7 @@ int main(int argc, char** argv){
             speed = Find_Wall();
             break;
         case TURN:
-            speed = Turn_Left();
+            speed = Turn();
             break;
         case FOLLOW_WALL:
             speed = Follow_Wall();
@@ -203,6 +243,17 @@ int main(int argc, char** argv){
         }
 
         vel_pub.publish(speed);
+        double err_yaw = atan2(goalPos.position.y-currentPos.position.y, goalPos.position.x-currentPos.position.x) - getYawFromQuaternion(currentPos.orientation);
+        err_yaw = Normalize_Angle(err_yaw);
+        if (err_yaw > 0)
+        {
+            _side = LEFT;
+        }
+        else
+        {
+            _side = RIGHT;
+        }
+        
         r.sleep();
     }
     

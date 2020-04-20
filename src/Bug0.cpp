@@ -79,6 +79,7 @@ namespace navigation_pkg
 
     void Bug0::ChangeState(State state){
         _state = state;
+        ROS_INFO("State changed to [%d: %s].", _state, state_description[_state].c_str());
         navigation_pkg::ActivateGoal msgGo, msgFollow;
         switch (_state)
         {
@@ -116,7 +117,7 @@ namespace navigation_pkg
     bool Bug0::Bug0Algorithm(geometry_msgs::Pose& currentPos, geometry_msgs::Pose& goalPos){
         ros::Rate r(20);
         ChangeState(GoToPoint);
-        double d = 0.75;
+        double d = 1.0;
 
         while (true)
         {
