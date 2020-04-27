@@ -4,9 +4,9 @@
 namespace navigation_pkg
 {
     DWA::DWA()
-    :dt(0.2), max_allow_v(0.26), max_allow_w(1.82), dv_a(2.5), dw_a(3.2), dv_b(dv_a), dw_b(dw_a), v_samples(10), w_samples(20),
-    alpha(0.1), beta(0.8), gamma(0.1),
-    robotWidth(0.306), angle_samples(5), line_samples(6), sl(3.5),
+    :dt(0.2), max_allow_v(0.26), max_allow_w(1.82), dv_a(1.0), dw_a(1.0), dv_b(dv_a), dw_b(dw_a), v_samples(10), w_samples(20),
+    alpha(0.7), beta(0.2), gamma(0.1),
+    robotWidth(0.35), angle_samples(5), line_samples(6), sl(3.5),
     checkPose(false), checkLaser(false), nh(ros::NodeHandle()), isShutDown(false)
     {
         local_plan_srv = nh.advertiseService("/DWA_LocalPlanner_Service", &DWA::DWA_Callback, this);
@@ -79,7 +79,7 @@ namespace navigation_pkg
             double desiredV = DWA::CalcDesiredVel(currentPos, goalPos);
             // ROS_INFO("Desired v calculated = %f.", desiredV);
             DWA::GenerateDynamicWindow(currentVel.linear.x, currentVel.angular.z, min_window_v, max_window_v, min_window_w, max_window_w);
-            // ROS_INFO("Dynamic Window generated: v[%.3f, %.3f] w[%.3f, %.3f]", min_window_v, max_window_v, min_window_w, max_window_w);
+            ROS_INFO("Dynamic Window generated: v[%.3f, %.3f] w[%.3f, %.3f]", min_window_v, max_window_v, min_window_w, max_window_w);
             v_increment = (max_window_v - min_window_v) / v_samples;
             w_increment = (max_window_w - min_window_w) / w_samples;
 
@@ -99,7 +99,7 @@ namespace navigation_pkg
                     // std::stringstream ss;
                     // ss << std::fixed << std::setprecision(12) << dist;
                     // c.append(std::to_string(dist)+"\t");
-                    // if(v > sqrt(2 * dv_b * dist) || w > sqrt(2 * dw_b * dist)) continue; //Only take admissible velocities. Non-admissible velocities will be ignored
+                    if(v > sqrt(2 * dv_b * dist) || w > sqrt(2 * dw_b * dist)) continue; //Only take admissible velocities. Non-admissible velocities will be ignored
                     double heading = DWA::CalcTargetHeading(currentPos, goalPos, v, w);
                     double clearance = DWA::CalcClearance(dist, v, w);
                     double velocity = DWA::CalcVelocity(v, desiredV);
@@ -166,9 +166,10 @@ namespace navigation_pkg
         {
             Wmax = max_allow_w;
         }
+        
     }
 
-    /*
+    
     double DWA::GetMinimumDistanceToObstacle(double v, double w){
         geometry_msgs::Pose2D A;    //current position (start point of the arc)
         geometry_msgs::Pose2D B;    //End point of the arc
@@ -178,7 +179,7 @@ namespace navigation_pkg
         double rad = (v/w);         //Radius of the arc
         double a;                   //LaserScanner angle (relative to the vertical axis - counter clock wise = positive)
         double b;                   //angle changing from 0 to C.theta 
-        int coeff = 50;             //Number of steps to plan
+        int coeff = 25;             //Number of steps to plan
 
         A = DWA::SetPose2D(currentPos.position.x, currentPos.position.y, DWA::getYawFromQuaternion(currentPos.orientation));
         C = DWA::SetPose2D(A.x- rad * sin(A.theta), A.y + rad * cos(A.theta), w * dt * coeff);
@@ -188,7 +189,7 @@ namespace navigation_pkg
         double min_dist = std::abs(rad * C.theta);
         bool found = false;
 
-        for (b = 0; b <= C.theta; b+=angle_increment)
+        for (b = 0; std::abs(b) <= std::abs(C.theta); b+=angle_increment)
         {
             if (found)
             {
@@ -216,7 +217,7 @@ namespace navigation_pkg
             
         }
         return min_dist;
-    }*/
+    }
 
     double DWA::CalcTargetHeading(geometry_msgs::Pose currentPos, geometry_msgs::Pose goalPos, double v, double w){
         geometry_msgs::Pose nextPos, center;
@@ -233,14 +234,21 @@ namespace navigation_pkg
 
         double targetAngle = atan2((goalPos.position.y - nextPos.position.y), (goalPos.position.x - nextPos.position.x));
         double headingAngle = std::abs(targetAngle - nextTheta);
+        if (std::abs(headingAngle) > M_PI)
+        {
+            headingAngle = headingAngle - (2* M_PI * headingAngle) / std::abs(headingAngle);
+        }
+        
         return (M_PI - headingAngle) / M_PI;
     }
 
-    /*
+    
     double DWA::CalcClearance(double distance, double v, double w){
+        double dist = distance - w*dt;
+        int coeff = 25;
         double T_b = std::max(v/dv_b, w/dw_b);  //Breakage time
-        double T_col = distance / v;            //Collision time
-        double T_max = sl / max_allow_v;  //Max admissible collision time
+        double T_col = dist / v;            //Collision time
+        double T_max = v * dt * coeff / v;  //Max admissible collision time
 
         if (T_col <= T_b)
         {
@@ -254,7 +262,7 @@ namespace navigation_pkg
         {
             return 1.0;
         }
-    }*/
+    }
 
     double DWA::CalcVelocity(double v, double des_v){
         return v / des_v;
@@ -306,7 +314,7 @@ namespace navigation_pkg
         return true;
     }
 
-    
+    /*
     double DWA::GetMinimumDistanceToObstacle(double v, double w){
         geometry_msgs::Pose2D A;            //current position (start point of the arc)
         // geometry_msgs::Pose2D B;            //End point of the arc
@@ -396,11 +404,11 @@ namespace navigation_pkg
         }
 
         return dist/dist_max;
-    }
-
+    }*/
+    /*
     double DWA::CalcClearance(double distance, double v, double w){
         return distance;
-    }
+    }*/
 
     bool DWA::Debug_Callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp){
         DWA::GenerateDynamicWindow(currentVel.linear.x, currentVel.angular.z, min_window_v, max_window_v, min_window_w, max_window_w);
@@ -409,11 +417,11 @@ namespace navigation_pkg
         std::stringstream ss;
         for (double v = min_window_v; v <= max_window_v; v += v_increment)
         {
-            ss << "v(" << std::fixed << std::setprecision(8) << v << ":\t";
+            ss << "v(" << std::fixed << std::setprecision(8) << v << "):\t";
             for (double w = min_window_w; w <= max_window_w; w += w_increment)
             {
-                char c;
-                std::cin >> c;
+                // char c;
+                // std::cin >> c;
 
                 double dist = DWA::GetMinimumDistanceToObstacle(v, w);
                 ss << std::fixed << std::setprecision(8) << dist << ", ";

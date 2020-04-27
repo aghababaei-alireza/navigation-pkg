@@ -187,6 +187,9 @@ target_link_libraries(Go_To_Point ${PROJECT_NAME} ${catkin_LIBRARIES})
 add_executable(Follow_Wall src/Follow_Wall.cpp)
 target_link_libraries(Follow_Wall ${PROJECT_NAME} ${catkin_LIBRARIES})
 
+add_executable(Map_Modifier src/Map_Modifier.cpp)
+target_link_libraries(Map_Modifier ${PROJECT_NAME} ${catkin_LIBRARIES})
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
