@@ -141,19 +141,8 @@ namespace navigation_pkg
         ROS_INFO("Path generated. Sending to Plan Follower...");
         
         //Send the path to PlanFollower
-        /*
-        std::vector<geometry_msgs::Pose> pose;
-        pose.resize(path.size());
-        navigation_pkg::Pose msg;
-        for (int i = 0; i < path.size(); i++)
-        {
-            pose[i].position.x = path[i].x;
-            pose[i].position.y = path[i].y;
-            pose[i].position.z = path[i].z;
-        }
-        msg.request.pose = pose;
-        ROS_INFO("Path sent to the plan follower.");
-        client.call(msg);*/
+
+        ROS_INFO("Preliminary Path => Nodes: %d", (int)path.size());
 
         std::vector<geometry_msgs::Pose> pose;
         geometry_msgs::Pose old2, old1, curr;
@@ -173,8 +162,48 @@ namespace navigation_pkg
             old2 = old1;
             old1 = curr;
         }
+
+        ROS_INFO("Path after firest reduction => Nodes: %d", (int)pose.size());
+
+        std::vector<geometry_msgs::Pose> simplified_pose;
+        old2.position.x = pose[0].position.x; old2.position.y = pose[0].position.y; old2.position.z = pose[0].position.z;
+        simplified_pose.push_back(old2);
+        old1.position.x = pose[1].position.x; old2.position.y = pose[1].position.y; old2.position.z = pose[1].position.z;
+        simplified_pose.push_back(old1);
+
+        for (std::vector<geometry_msgs::Pose>::iterator it = pose.begin()+2; it != pose.end(); it++)
+        {
+            curr = (*it);
+            double theta = atan2(curr.position.y - old2.position.y, curr.position.x - old2.position.x);
+            double l_max = sqrt(pow(curr.position.x - old2.position.x, 2) + pow(curr.position.y - old2.position.y, 2));
+            double inc = 2.0e-2;
+            bool collision = false;
+            for (double l = 0; l < l_max; l += inc)
+            {
+                geometry_msgs::Pose P;
+                P.position.x = old2.position.x + l * cos(theta);
+                P.position.y = old2.position.y + l * sin(theta);
+
+                Node* n = grid.NodeFromWorldPoint(*new Vector3(P.position.x, P.position.y, P.position.z));
+                if (!n->walkable)
+                {
+                    collision = true;
+                    break;
+                }
+            }
+            if (!collision)
+            {
+                simplified_pose.pop_back();
+            }
+            simplified_pose.push_back(curr);
+            old2 = old1;
+            old1 = curr;
+        }
+
+        ROS_INFO("Path after second reduction => Nodes: %d", (int)simplified_pose.size());
+        
         navigation_pkg::Pose msg;
-        msg.request.pose = pose;
+        msg.request.pose = simplified_pose;
         client.call(msg);
         
 
