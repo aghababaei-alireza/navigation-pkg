@@ -143,6 +143,8 @@ add_library(
   src/AStar.cpp
   src/DWA.cpp
   src/Bug0.cpp
+  src/VFH_LocalMap.cpp
+  src/VFH.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -189,6 +191,9 @@ target_link_libraries(Follow_Wall ${PROJECT_NAME} ${catkin_LIBRARIES})
 
 add_executable(Map_Modifier src/Map_Modifier.cpp)
 target_link_libraries(Map_Modifier ${PROJECT_NAME} ${catkin_LIBRARIES})
+
+add_executable(VFH_LocalPlanner src/VFH_LocalPlanner.cpp)
+target_link_libraries(VFH_LocalPlanner ${PROJECT_NAME} ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
