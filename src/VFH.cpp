@@ -188,7 +188,7 @@ namespace navigation_pkg
 
     int VFH::Data_Reduction(){
         ROS_INFO("Entered Data_Reduction.");
-        #define S_MAX       (18*5)
+        #define S_MAX       (18*3)
         #define THRESHOLD   0.1
 
         target_direction = atan2(goalPos.position.y - currentPos.position.y, goalPos.position.x - currentPos.position.x);

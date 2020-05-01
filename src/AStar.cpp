@@ -30,6 +30,7 @@ namespace navigation_pkg
     }
 
     bool AStar::FindPath(Vector3 startPos, Vector3 targetPos){
+        _time = ros::Time::now();
         bool success = false;
 
         Node* startNode = grid.NodeFromWorldPoint(startPos);
@@ -126,6 +127,9 @@ namespace navigation_pkg
     }
 
     void AStar::RetracePath(Node* startNode, Node* endNode){
+        ros::Duration t = ros::Time::now() - _time;
+        ROS_INFO("Find Path completed in %f seconds.", t.toSec());
+        _time = ros::Time::now();
         ROS_INFO("Entered Retraced Path");
         std::vector<Vector3> path;
         Node* currentNode = endNode;
@@ -141,6 +145,10 @@ namespace navigation_pkg
         ROS_INFO("Path generated. Sending to Plan Follower...");
         
         //Send the path to PlanFollower
+
+        t = ros::Time::now() - _time;
+        ROS_INFO("Path reversed in %.15f seconds.", t.toSec());
+        _time = ros::Time::now();
 
         ROS_INFO("Preliminary Path => Nodes: %d", (int)path.size());
 
@@ -162,6 +170,10 @@ namespace navigation_pkg
             old2 = old1;
             old1 = curr;
         }
+
+        t = ros::Time::now() - _time;
+        ROS_INFO("First Reduction of path completed in %.15f seconds.", t.toSec());
+        _time = ros::Time::now();
 
         ROS_INFO("Path after firest reduction => Nodes: %d", (int)pose.size());
 
@@ -199,6 +211,10 @@ namespace navigation_pkg
             old2 = old1;
             old1 = curr;
         }
+
+        t = ros::Time::now() - _time;
+        ROS_INFO("Second Reduction of path completed in %.15f seconds.", t.toSec());
+        _time = ros::Time::now();
 
         ROS_INFO("Path after second reduction => Nodes: %d", (int)simplified_pose.size());
         

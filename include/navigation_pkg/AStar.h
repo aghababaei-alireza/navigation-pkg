@@ -25,6 +25,9 @@ namespace navigation_pkg
         //Client to call PlanFollower service
         ros::ServiceClient client;
 
+        //A variable to measure the processing time of the algorithm
+        ros::Time _time;
+
         //Constructor
         AStar(Vector2 _gridWorldSize, double _nodeRad, geometry_msgs::Point _worldBottomLeft, std::vector<std::vector<int>> data);
 
